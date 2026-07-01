@@ -149,7 +149,7 @@ export function EditorWorkspace() {
           
           <div className="flex items-center gap-2">
             <span className="hidden md:inline-block text-[10px] text-muted-foreground font-bold uppercase tracking-wider pr-1">Source</span>
-            <Select value={sourceLang} onValueChange={setSourceLang}>
+            <Select value={sourceLang} onValueChange={(val) => val && setSourceLang(val)}>
               <SelectTrigger className="w-[120px] md:w-[140px] bg-white/5 border-white/10 rounded-full focus:ring-1 focus:ring-primary/30 h-10">
                 <SelectValue placeholder="Source" />
               </SelectTrigger>
@@ -186,7 +186,7 @@ export function EditorWorkspace() {
                   exit={{ opacity: 0, width: 0, scale: 0.8 }}
                   className="flex items-center gap-1"
                 >
-                  <Select value={target} onValueChange={(val) => updateTargetLanguage(index, val)}>
+                  <Select value={target} onValueChange={(val) => val && updateTargetLanguage(index, val)}>
                     <SelectTrigger className="w-[120px] md:w-[140px] bg-white/5 border-white/10 rounded-full focus:ring-1 focus:ring-primary/30 h-10">
                       <SelectValue placeholder="Target" />
                     </SelectTrigger>

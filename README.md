@@ -12,8 +12,9 @@
 
 - **Multi-Language Support**: Translate code between C++, Python, Java, JavaScript, TypeScript, C#, Go, Rust, Kotlin, and Swift.
 - **Simultaneous Multi-Targeting**: Translate from a single source language into up to *two* different target languages simultaneously (e.g., C++ → Python AND Java).
+- **Interactive AI Sandbox**: Execute your source code and translated code directly in the browser! Powered natively by Gemini 2.5 Flash acting as an execution engine, predicting terminal output with zero external container dependencies.
 - **AI-Powered Explanations**: Powered by Google's **Gemini 2.5 Flash**, the engine provides intelligent explanations of syntax changes, library replacements, and memory model differences.
-- **Simplest Code Form**: Output is strictly optimized to produce the cleanest, most idiomatic code with zero distracting comments.
+- **Robust Architecture**: Immune to JSON escaping crashes thanks to custom XML-style tag extraction, complete with graceful fallback UI for AI API rate limits.
 - **Stunning UI/UX**: Built with Next.js and Tailwind CSS v4, featuring immersive glassmorphism, Framer Motion animations, and Monaco Editor integration.
 
 ## 🚀 Tech Stack
@@ -64,7 +65,7 @@
 2. Select your **Target Language(s)** from the dropdowns on the right. Use the **+ Add** button to add a second target language!
 3. Paste your algorithm or logic into the source editor.
 4. Click **Translate**.
-5. Watch as the AI instantly ports your code into the cleanest possible idiomatic form and explains the differences below.
+5. Click **Run** on any editor pane to see the simulated terminal output below the code.
 
 ---
 
