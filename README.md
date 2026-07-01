@@ -1,7 +1,7 @@
 # Universal AI Code Translator
 
 <p align="center">
-  <img src="public/favicon.ico" alt="Universal AI Code Translator Logo" width="100"/>
+  <img src="src/app/favicon.ico" alt="Universal AI Code Translator Logo" width="100"/>
 </p>
 
 <h3 align="center">Seamlessly port algorithms, applications, and logic across different programming languages with context-aware AI explanations.</h3>

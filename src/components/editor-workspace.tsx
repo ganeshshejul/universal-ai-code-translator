@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
-import { Play, Loader2, ArrowRightLeft, Sparkles, AlertCircle, Plus, X } from "lucide-react";
+import { Play, Loader2, ArrowRightLeft, Sparkles, AlertCircle, Plus, X, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -38,6 +38,10 @@ export function EditorWorkspace() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Execution State
+  const [consoleOutputs, setConsoleOutputs] = useState<Record<string, string>>({});
+  const [isExecuting, setIsExecuting] = useState<Record<string, boolean>>({});
+
   const handleTranslate = async () => {
     if (!inputCode.trim()) return;
     
@@ -62,6 +66,8 @@ export function EditorWorkspace() {
 
       setOutputCodes(data.translations);
       setExplanation(data.explanation);
+      // Clear console outputs on new translation
+      setConsoleOutputs({});
     } catch (err: any) {
       console.error(err);
       setError(err.message || "An error occurred while communicating with the AI server.");
@@ -70,8 +76,34 @@ export function EditorWorkspace() {
     }
   };
 
+  const executeCode = async (lang: string, code: string, key: string) => {
+    if (!code.trim()) return;
+    
+    setIsExecuting(prev => ({ ...prev, [key]: true }));
+    setConsoleOutputs(prev => ({ ...prev, [key]: "> Executing code..." }));
+    
+    try {
+      const response = await fetch("/api/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: lang, code }),
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      
+      setConsoleOutputs(prev => ({ ...prev, [key]: data.output }));
+    } catch (err: any) {
+      setConsoleOutputs(prev => ({ ...prev, [key]: `Error: ${err.message}` }));
+    } finally {
+      // Cooldown timer before re-enabling run button
+      setTimeout(() => {
+        setIsExecuting(prev => ({ ...prev, [key]: false }));
+      }, 3000);
+    }
+  };
+
   const swapLanguages = () => {
-    // Only swap primary target
     const primaryTarget = targetLangs[0];
     setSourceLang(primaryTarget);
     
@@ -85,6 +117,7 @@ export function EditorWorkspace() {
     const newOutputs = { ...outputCodes };
     newOutputs[sourceLang] = tempCode;
     setOutputCodes(newOutputs);
+    setConsoleOutputs({});
   };
 
   const addTargetLanguage = () => {
@@ -231,14 +264,24 @@ export function EditorWorkspace() {
       </AnimatePresence>
 
       {/* Editor Split Pane */}
-      <div className="flex-1 flex flex-col xl:flex-row gap-6 min-h-[500px]">
+      <div className="flex-1 flex flex-col xl:flex-row gap-6 min-h-[600px]">
         
         {/* Input Editor */}
-        <div className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl relative min-h-[400px]">
-          <div className="px-5 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center text-muted-foreground">
+        <div className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl relative min-h-[500px]">
+          <div className="px-5 py-2 border-b border-white/5 bg-white/5 flex justify-between items-center text-muted-foreground h-12">
             <span className="text-xs font-bold uppercase tracking-widest">{LANGUAGES.find(l => l.value === sourceLang)?.label} (Source)</span>
+            <Button 
+              size="sm" 
+              variant="secondary" 
+              className="h-7 text-[10px] gap-1.5 uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 text-white rounded-full"
+              onClick={() => executeCode(sourceLang, inputCode, 'source')}
+              disabled={isExecuting['source'] || !inputCode.trim()}
+            >
+              {isExecuting['source'] ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
+              Run
+            </Button>
           </div>
-          <div className="flex-1 p-0 relative">
+          <div className="flex-[2] p-0 relative border-b border-white/5">
             <Editor
               height="100%"
               language={sourceLang}
@@ -265,6 +308,18 @@ export function EditorWorkspace() {
               }
             />
           </div>
+          {/* Terminal Output */}
+          <div className="flex-1 min-h-[150px] bg-black/80 font-mono text-sm flex flex-col">
+            <div className="px-4 py-1.5 bg-white/5 border-b border-white/5 flex items-center gap-2 text-xs text-muted-foreground font-semibold">
+              <Terminal className="h-3 w-3" />
+              Console Output
+            </div>
+            <ScrollArea className="flex-1">
+              <div className="p-4 text-green-400 whitespace-pre-wrap">
+                {consoleOutputs['source'] || <span className="text-muted-foreground/50 italic">Output will appear here...</span>}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
 
         {/* Output Editors */}
@@ -276,12 +331,22 @@ export function EditorWorkspace() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl relative min-h-[400px]"
+                className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl relative min-h-[500px]"
               >
-                <div className="px-5 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center text-muted-foreground">
+                <div className="px-5 py-2 border-b border-white/5 bg-white/5 flex justify-between items-center text-muted-foreground h-12">
                   <span className="text-xs font-bold uppercase tracking-widest">{LANGUAGES.find(l => l.value === lang)?.label} (Target)</span>
+                  <Button 
+                    size="sm" 
+                    variant="secondary" 
+                    className="h-7 text-[10px] gap-1.5 uppercase font-bold tracking-wider bg-primary/20 hover:bg-primary/30 text-primary-foreground rounded-full"
+                    onClick={() => executeCode(lang, outputCodes[lang], `target-${index}`)}
+                    disabled={isExecuting[`target-${index}`] || !outputCodes[lang]}
+                  >
+                    {isExecuting[`target-${index}`] ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
+                    Run
+                  </Button>
                 </div>
-                <div className="flex-1 p-0 relative">
+                <div className="flex-[2] p-0 relative border-b border-white/5">
                   <Editor
                     height="100%"
                     language={lang}
@@ -307,7 +372,20 @@ export function EditorWorkspace() {
                   />
                 </div>
                 
-                {/* Overlay loading state */}
+                {/* Terminal Output */}
+                <div className="flex-1 min-h-[150px] bg-black/80 font-mono text-sm flex flex-col">
+                  <div className="px-4 py-1.5 bg-white/5 border-b border-white/5 flex items-center gap-2 text-xs text-muted-foreground font-semibold">
+                    <Terminal className="h-3 w-3" />
+                    Console Output
+                  </div>
+                  <ScrollArea className="flex-1">
+                    <div className="p-4 text-green-400 whitespace-pre-wrap">
+                      {consoleOutputs[`target-${index}`] || <span className="text-muted-foreground/50 italic">Output will appear here...</span>}
+                    </div>
+                  </ScrollArea>
+                </div>
+
+                {/* Overlay loading state during translation */}
                 <AnimatePresence>
                   {isTranslating && (
                     <motion.div 
