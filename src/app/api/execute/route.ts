@@ -1,35 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { NextResponse } from "next/server";
 
-const PISTON_LANGUAGE_MAP: Record<string, string> = {
-  cpp: "c++",
-  python: "python",
-  java: "java",
-  javascript: "javascript",
-  typescript: "typescript",
-  csharp: "csharp",
-  go: "go",
-  rust: "rust",
-  kotlin: "kotlin",
-  swift: "swift",
-};
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const { language, code } = await req.json();
 
     if (!language || !code) {
       return NextResponse.json(
-        { error: "Missing required fields: language or code" },
+        { error: "Language and code are required." },
         { status: 400 }
       );
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "Execution service is offline (GEMINI_API_KEY missing)." },
-        { status: 500 }
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
     const apiToken = process.env.CLOUDFLARE_API_TOKEN;
 
