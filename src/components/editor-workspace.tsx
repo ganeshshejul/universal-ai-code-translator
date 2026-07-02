@@ -310,7 +310,7 @@ export function EditorWorkspace() {
               />
             </div>
             <textarea
-              className="md:hidden w-full h-full bg-transparent text-slate-300 font-mono text-sm p-4 outline-none resize-none block text-left whitespace-pre overflow-auto"
+              className="md:hidden absolute inset-0 w-full h-full bg-transparent text-slate-300 font-mono text-sm p-4 outline-none resize-none block text-left whitespace-pre overflow-auto"
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value)}
               placeholder="Type your code here..."
@@ -382,7 +382,7 @@ export function EditorWorkspace() {
                     />
                   </div>
                   <textarea
-                    className="md:hidden w-full h-full bg-transparent text-green-400/90 font-mono text-sm p-4 outline-none resize-none block text-left whitespace-pre overflow-auto"
+                    className="md:hidden absolute inset-0 w-full h-full bg-transparent text-green-400/90 font-mono text-sm p-4 outline-none resize-none block text-left whitespace-pre overflow-auto"
                     value={outputCodes[lang] || ""}
                     readOnly
                     placeholder="Translation will appear here..."
