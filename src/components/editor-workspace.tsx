@@ -267,7 +267,7 @@ export function EditorWorkspace() {
       <div className="flex-1 flex flex-col xl:flex-row gap-6 min-h-[600px]">
         
         {/* Input Editor */}
-        <div className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl relative min-h-[500px]">
+        <div className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl relative min-h-[450px] md:min-h-[500px]">
           <div className="px-5 py-2 border-b border-white/5 bg-white/5 flex justify-between items-center text-muted-foreground h-12">
             <span className="text-xs font-bold uppercase tracking-widest">{LANGUAGES.find(l => l.value === sourceLang)?.label} (Source)</span>
             <Button 
@@ -281,31 +281,40 @@ export function EditorWorkspace() {
               Run
             </Button>
           </div>
-          <div className="flex-[2] p-0 relative border-b border-white/5">
-            <Editor
-              height="100%"
-              language={sourceLang}
-              theme="vs-dark"
+          <div className="flex-[2] p-0 relative border-b border-white/5 min-h-[200px]">
+            <div className="hidden md:block h-full">
+              <Editor
+                height="100%"
+                language={sourceLang}
+                theme="vs-dark"
+                value={inputCode}
+                onChange={(value) => setInputCode(value || "")}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  fontFamily: 'var(--font-geist-mono)',
+                  wordWrap: "on",
+                  padding: { top: 20 },
+                  scrollBeyondLastLine: false,
+                  smoothScrolling: true,
+                  cursorBlinking: "smooth",
+                  overviewRulerBorder: false,
+                  lineNumbersMinChars: 4,
+                  renderLineHighlight: "all",
+                }}
+                loading={
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                }
+              />
+            </div>
+            <textarea
+              className="md:hidden w-full h-full bg-transparent text-slate-300 font-mono text-sm p-4 outline-none resize-none block"
               value={inputCode}
-              onChange={(value) => setInputCode(value || "")}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 14,
-                fontFamily: 'var(--font-geist-mono)',
-                wordWrap: "on",
-                padding: { top: 20 },
-                scrollBeyondLastLine: false,
-                smoothScrolling: true,
-                cursorBlinking: "smooth",
-                overviewRulerBorder: false,
-                lineNumbersMinChars: 4,
-                renderLineHighlight: "all",
-              }}
-              loading={
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </div>
-              }
+              onChange={(e) => setInputCode(e.target.value)}
+              placeholder="Type your code here..."
+              spellCheck={false}
             />
           </div>
           {/* Terminal Output */}
@@ -331,7 +340,7 @@ export function EditorWorkspace() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl relative min-h-[500px]"
+                className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl shadow-2xl relative min-h-[450px] md:min-h-[500px]"
               >
                 <div className="px-5 py-2 border-b border-white/5 bg-white/5 flex justify-between items-center text-muted-foreground h-12">
                   <span className="text-xs font-bold uppercase tracking-widest">{LANGUAGES.find(l => l.value === lang)?.label} (Target)</span>
@@ -346,29 +355,38 @@ export function EditorWorkspace() {
                     Run
                   </Button>
                 </div>
-                <div className="flex-[2] p-0 relative border-b border-white/5">
-                  <Editor
-                    height="100%"
-                    language={lang}
-                    theme="vs-dark"
+                <div className="flex-[2] p-0 relative border-b border-white/5 min-h-[200px]">
+                  <div className="hidden md:block h-full">
+                    <Editor
+                      height="100%"
+                      language={lang}
+                      theme="vs-dark"
+                      value={outputCodes[lang] || ""}
+                      options={{
+                        minimap: { enabled: false },
+                        fontSize: 14,
+                        fontFamily: 'var(--font-geist-mono)',
+                        wordWrap: "on",
+                        padding: { top: 20 },
+                        readOnly: true,
+                        scrollBeyondLastLine: false,
+                        smoothScrolling: true,
+                        overviewRulerBorder: false,
+                        lineNumbersMinChars: 4,
+                      }}
+                      loading={
+                        <div className="flex items-center justify-center h-full text-muted-foreground">
+                          <Loader2 className="h-6 w-6 animate-spin" />
+                        </div>
+                      }
+                    />
+                  </div>
+                  <textarea
+                    className="md:hidden w-full h-full bg-transparent text-green-400/90 font-mono text-sm p-4 outline-none resize-none block"
                     value={outputCodes[lang] || ""}
-                    options={{
-                      minimap: { enabled: false },
-                      fontSize: 14,
-                      fontFamily: 'var(--font-geist-mono)',
-                      wordWrap: "on",
-                      padding: { top: 20 },
-                      readOnly: true,
-                      scrollBeyondLastLine: false,
-                      smoothScrolling: true,
-                      overviewRulerBorder: false,
-                      lineNumbersMinChars: 4,
-                    }}
-                    loading={
-                      <div className="flex items-center justify-center h-full text-muted-foreground">
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                      </div>
-                    }
+                    readOnly
+                    placeholder="Translation will appear here..."
+                    spellCheck={false}
                   />
                 </div>
                 
