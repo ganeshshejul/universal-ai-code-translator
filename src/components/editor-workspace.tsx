@@ -282,7 +282,7 @@ export function EditorWorkspace() {
             </Button>
           </div>
           <div className="flex-[2] p-0 relative border-b border-white/5 min-h-[200px]">
-            <div className="hidden md:block h-full">
+            <div className="w-full h-full">
               <Editor
                 height="100%"
                 language={sourceLang}
@@ -301,6 +301,17 @@ export function EditorWorkspace() {
                   overviewRulerBorder: false,
                   lineNumbersMinChars: 4,
                   renderLineHighlight: "all",
+                  insertSpaces: true,
+                  tabSize: 4,
+                  autoIndent: "full",
+                  quickSuggestions: true,
+                  suggestOnTriggerCharacters: true,
+                  parameterHints: { enabled: true },
+                  wordBasedSuggestions: "currentDocument",
+                  bracketPairColorization: { enabled: true },
+                  guides: { bracketPairs: true, indentation: true },
+                  formatOnType: true,
+                  formatOnPaste: true,
                 }}
                 loading={
                   <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -309,13 +320,6 @@ export function EditorWorkspace() {
                 }
               />
             </div>
-            <textarea
-              className="md:hidden absolute inset-0 w-full h-full bg-transparent text-slate-300 font-mono text-sm p-4 outline-none resize-none block text-left whitespace-pre overflow-auto"
-              value={inputCode}
-              onChange={(e) => setInputCode(e.target.value)}
-              placeholder="Type your code here..."
-              spellCheck={false}
-            />
           </div>
           {/* Terminal Output */}
           <div className="flex-1 min-h-[150px] bg-black/80 font-mono text-sm flex flex-col">
@@ -356,7 +360,7 @@ export function EditorWorkspace() {
                   </Button>
                 </div>
                 <div className="flex-[2] p-0 relative border-b border-white/5 min-h-[200px]">
-                  <div className="hidden md:block h-full">
+                  <div className="w-full h-full">
                     <Editor
                       height="100%"
                       language={lang}
@@ -373,6 +377,10 @@ export function EditorWorkspace() {
                         smoothScrolling: true,
                         overviewRulerBorder: false,
                         lineNumbersMinChars: 4,
+                        insertSpaces: true,
+                        tabSize: 4,
+                        bracketPairColorization: { enabled: true },
+                        guides: { bracketPairs: true, indentation: true },
                       }}
                       loading={
                         <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -381,13 +389,6 @@ export function EditorWorkspace() {
                       }
                     />
                   </div>
-                  <textarea
-                    className="md:hidden absolute inset-0 w-full h-full bg-transparent text-green-400/90 font-mono text-sm p-4 outline-none resize-none block text-left whitespace-pre overflow-auto"
-                    value={outputCodes[lang] || ""}
-                    readOnly
-                    placeholder="Translation will appear here..."
-                    spellCheck={false}
-                  />
                 </div>
                 
                 {/* Terminal Output */}
