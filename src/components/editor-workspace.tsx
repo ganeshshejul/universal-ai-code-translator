@@ -3,6 +3,21 @@
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import { Play, Loader2, ArrowRightLeft, Sparkles, AlertCircle, Plus, X, Terminal } from "lucide-react";
+import SimpleEditor from "react-simple-code-editor";
+import Prism from "prismjs";
+import "prismjs/themes/prism-tomorrow.css";
+import "prismjs/components/prism-c";
+import "prismjs/components/prism-cpp";
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-java";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-typescript";
+import "prismjs/components/prism-csharp";
+import "prismjs/components/prism-go";
+import "prismjs/components/prism-rust";
+import "prismjs/components/prism-kotlin";
+import "prismjs/components/prism-swift";
+import { useTouchDevice } from "@/hooks/use-touch-device";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -29,7 +44,24 @@ const LANGUAGES = [
   { value: "swift", label: "Swift" },
 ];
 
+const getPrismLanguage = (lang: string) => {
+  const map: Record<string, any> = {
+    cpp: Prism.languages.cpp,
+    python: Prism.languages.python,
+    java: Prism.languages.java,
+    javascript: Prism.languages.javascript,
+    typescript: Prism.languages.typescript,
+    csharp: Prism.languages.csharp,
+    go: Prism.languages.go,
+    rust: Prism.languages.rust,
+    kotlin: Prism.languages.kotlin,
+    swift: Prism.languages.swift,
+  };
+  return map[lang] || Prism.languages.javascript;
+};
+
 export function EditorWorkspace() {
+  const isMobile = useTouchDevice();
   const [sourceLang, setSourceLang] = useState("cpp");
   const [targetLangs, setTargetLangs] = useState<string[]>(["python"]);
   const [inputCode, setInputCode] = useState("");
@@ -283,42 +315,59 @@ export function EditorWorkspace() {
           </div>
           <div className="flex-[2] p-0 relative border-b border-white/5 min-h-[200px]">
             <div className="w-full h-full">
-              <Editor
-                height="100%"
-                language={sourceLang}
-                theme="vs-dark"
-                value={inputCode}
-                onChange={(value) => setInputCode(value || "")}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  fontFamily: 'var(--font-geist-mono)',
-                  wordWrap: "on",
-                  padding: { top: 20 },
-                  scrollBeyondLastLine: false,
-                  smoothScrolling: true,
-                  cursorBlinking: "smooth",
-                  overviewRulerBorder: false,
-                  lineNumbersMinChars: 4,
-                  renderLineHighlight: "all",
-                  insertSpaces: true,
-                  tabSize: 4,
-                  autoIndent: "full",
-                  quickSuggestions: true,
-                  suggestOnTriggerCharacters: true,
-                  parameterHints: { enabled: true },
-                  wordBasedSuggestions: "currentDocument",
-                  bracketPairColorization: { enabled: true },
-                  guides: { bracketPairs: true, indentation: true },
-                  formatOnType: true,
-                  formatOnPaste: true,
-                }}
-                loading={
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                  </div>
-                }
-              />
+              {!isMobile ? (
+                <Editor
+                  height="100%"
+                  language={sourceLang}
+                  theme="vs-dark"
+                  value={inputCode}
+                  onChange={(value) => setInputCode(value || "")}
+                  options={{
+                    minimap: { enabled: false },
+                    fontSize: 14,
+                    fontFamily: 'var(--font-geist-mono)',
+                    wordWrap: "on",
+                    padding: { top: 20 },
+                    scrollBeyondLastLine: false,
+                    smoothScrolling: true,
+                    cursorBlinking: "smooth",
+                    overviewRulerBorder: false,
+                    lineNumbersMinChars: 4,
+                    renderLineHighlight: "all",
+                    insertSpaces: true,
+                    tabSize: 4,
+                    autoIndent: "full",
+                    quickSuggestions: true,
+                    suggestOnTriggerCharacters: true,
+                    parameterHints: { enabled: true },
+                    wordBasedSuggestions: "currentDocument",
+                    bracketPairColorization: { enabled: true },
+                    guides: { bracketPairs: true, indentation: true },
+                    formatOnType: true,
+                    formatOnPaste: true,
+                  }}
+                  loading={
+                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  }
+                />
+              ) : (
+                <div className="absolute inset-0 overflow-auto bg-[#1d1f21]">
+                  <SimpleEditor
+                    value={inputCode}
+                    onValueChange={(code) => setInputCode(code)}
+                    highlight={(code) => Prism.highlight(code, getPrismLanguage(sourceLang), sourceLang)}
+                    padding={16}
+                    style={{
+                      fontFamily: 'var(--font-geist-mono)',
+                      fontSize: 14,
+                      minHeight: '100%',
+                    }}
+                    className="editor-textarea text-slate-300 min-h-full"
+                  />
+                </div>
+              )}
             </div>
           </div>
           {/* Terminal Output */}
@@ -361,33 +410,51 @@ export function EditorWorkspace() {
                 </div>
                 <div className="flex-[2] p-0 relative border-b border-white/5 min-h-[200px]">
                   <div className="w-full h-full">
-                    <Editor
-                      height="100%"
-                      language={lang}
-                      theme="vs-dark"
-                      value={outputCodes[lang] || ""}
-                      options={{
-                        minimap: { enabled: false },
-                        fontSize: 14,
-                        fontFamily: 'var(--font-geist-mono)',
-                        wordWrap: "on",
-                        padding: { top: 20 },
-                        readOnly: true,
-                        scrollBeyondLastLine: false,
-                        smoothScrolling: true,
-                        overviewRulerBorder: false,
-                        lineNumbersMinChars: 4,
-                        insertSpaces: true,
-                        tabSize: 4,
-                        bracketPairColorization: { enabled: true },
-                        guides: { bracketPairs: true, indentation: true },
-                      }}
-                      loading={
-                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                          <Loader2 className="h-6 w-6 animate-spin" />
-                        </div>
-                      }
-                    />
+                    {!isMobile ? (
+                      <Editor
+                        height="100%"
+                        language={lang}
+                        theme="vs-dark"
+                        value={outputCodes[lang] || ""}
+                        options={{
+                          minimap: { enabled: false },
+                          fontSize: 14,
+                          fontFamily: 'var(--font-geist-mono)',
+                          wordWrap: "on",
+                          padding: { top: 20 },
+                          readOnly: true,
+                          scrollBeyondLastLine: false,
+                          smoothScrolling: true,
+                          overviewRulerBorder: false,
+                          lineNumbersMinChars: 4,
+                          insertSpaces: true,
+                          tabSize: 4,
+                          bracketPairColorization: { enabled: true },
+                          guides: { bracketPairs: true, indentation: true },
+                        }}
+                        loading={
+                          <div className="flex items-center justify-center h-full text-muted-foreground">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                          </div>
+                        }
+                      />
+                    ) : (
+                      <div className="absolute inset-0 overflow-auto bg-[#1d1f21]">
+                        <SimpleEditor
+                          value={outputCodes[lang] || ""}
+                          onValueChange={() => {}}
+                          highlight={(code) => Prism.highlight(code, getPrismLanguage(lang), lang)}
+                          padding={16}
+                          style={{
+                            fontFamily: 'var(--font-geist-mono)',
+                            fontSize: 14,
+                            minHeight: '100%',
+                          }}
+                          className="editor-textarea text-green-400/90 min-h-full"
+                          readOnly
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
                 
